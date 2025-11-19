@@ -64,23 +64,22 @@
     color: hsl(var(--primary)) !important; /* Red on hover */
   }
 
-  /* Light mode: Links use red */
+  /* Light mode: Links use black by default, red on hover */
   a:not([class*="text-"]):not(.dark *) {
-    color: hsl(var(--primary)) !important;
+    color: hsl(var(--foreground)) !important; /* Black text */
   }
 
-  a:hover:not([class*="text-"]) {
-    color: hsl(var(--primary)) !important;
-    opacity: 0.8;
+  a:hover:not([class*="text-"]):not(.dark *) {
+    color: hsl(var(--primary)) !important; /* Red on hover */
   }
 
   /* Override any blue link colors */
-  a:visited:not([class*="text-"]) {
-    color: hsl(var(--primary)) !important;
+  a:visited:not([class*="text-"]):not(.dark *) {
+    color: hsl(var(--foreground)) !important; /* Black */
   }
 
-  a:active:not([class*="text-"]) {
-    color: hsl(var(--primary)) !important;
+  a:active:not([class*="text-"]):not(.dark *) {
+    color: hsl(var(--primary)) !important; /* Red when active */
   }
 
   /* Focus states should also be red */
@@ -91,6 +90,17 @@
   /* Ensure hover:text-primary always uses red */
   .hover\:text-primary:hover {
     color: hsl(var(--primary)) !important;
+  }
+
+  /* Light mode: Buttons and links black by default, red on hover */
+  button:not([class*="text-"]):not(.dark *),
+  a:not([class*="text-"]):not(.dark *) {
+    color: hsl(var(--foreground)) !important; /* Black text */
+  }
+
+  button:hover:not([class*="text-"]):not(.dark *),
+  a:hover:not([class*="text-"]):not(.dark *) {
+    color: hsl(var(--primary)) !important; /* Red on hover */
   }
 
   /* Dark mode: White text normally, red on hover */
