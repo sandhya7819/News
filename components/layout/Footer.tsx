@@ -14,9 +14,9 @@ export default function Footer() {
               <Image 
                 src="/tnf-logo.png" 
                 alt="TNF Logo" 
-                width={100} 
-                height={35}
-                className="h-7 w-auto dark:invert"
+                width={120} 
+                height={40}
+                unoptimized
               />
             </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm">

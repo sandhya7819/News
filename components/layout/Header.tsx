@@ -408,9 +408,10 @@ export default function Header() {
                   <Image 
                     src="/tnf-logo.png" 
                     alt="TNF Logo" 
-                    width={90} 
-                    height={30}
-                    className="h-6 w-auto dark:invert"
+                    width={120} 
+                    height={40}
+                    unoptimized
+                    priority
                   />
                 </Link>
               </div>
@@ -420,9 +421,10 @@ export default function Header() {
                   <Image 
                     src="/tnf-logo.png" 
                     alt="TNF Logo" 
-                    width={110} 
-                    height={35}
-                    className="h-8 w-auto dark:invert"
+                    width={150} 
+                    height={50}
+                    unoptimized
+                    priority
                   />
                 </Link>
               </div>

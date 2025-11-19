@@ -35,9 +35,9 @@ export default function MenuPanel({ isOpen, onClose }: MenuPanelProps) {
             <Image 
               src="/tnf-logo.png" 
               alt="TNF Logo" 
-              width={80} 
-              height={28}
-              className="h-6 w-auto dark:invert"
+              width={100} 
+              height={35}
+              unoptimized
             />
           </Link>
           <button
