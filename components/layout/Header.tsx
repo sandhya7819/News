@@ -255,18 +255,35 @@ export default function Header() {
                     onMouseLeave={() => setWorldOpen(false)}
                   >
                     <div className="space-y-3">
-                      {articles.filter(a => a.category === 'World' || a.category === 'Arts').slice(0, 5).map((article) => (
-                        <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
-                          <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
-                            <Image src={article.image} alt={article.title} fill className="object-cover" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors dark:text-white">
-                              {article.title}
-                            </h4>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              {formatTimeAgo(article.publishedAt)} · {article.views}
+                      {articles.filter(a => a.category === 'World' || a.category === 'Arts').slice(0, 5).length > 0 ? (
+                        articles.filter(a => a.category === 'World' || a.category === 'Arts').slice(0, 5).map((article) => (
+                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                            <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+                              <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors dark:text-white">
+                                {article.title}
+                              </h4>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                              </div>
+                            </div>
+                          </Link>
+                        ))
+                      ) : (
+                        articles.slice(0, 5).map((article) => (
+                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                            <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+                              <Image src={article.image} alt={article.title} fill className="object-cover" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors dark:text-white">
+                                {article.title}
+                              </h4>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                              </div>
                             </div>
                           </Link>
                         ))
