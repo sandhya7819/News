@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { X, Search, ChevronDown } from 'lucide-react'
 import { useTheme } from '@/components/providers/ThemeProvider'
 
@@ -30,8 +31,14 @@ export default function MenuPanel({ isOpen, onClose }: MenuPanelProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex justify-between items-center pb-4 bg-white dark:bg-black sticky top-0 z-10 p-4 border-b border-gray-200 dark:border-gray-800">
-          <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
-            News5
+          <Link href="/">
+            <Image 
+              src="/tnf-logo.png" 
+              alt="TNF Logo" 
+              width={80} 
+              height={28}
+              className="h-6 w-auto dark:invert"
+            />
           </Link>
           <button
             onClick={onClose}

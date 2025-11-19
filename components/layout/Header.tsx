@@ -404,14 +404,26 @@ export default function Header() {
                   <Dot className="w-3 h-3 text-red-500 animate-pulse" />
                   <span>Live</span>
                 </Link>
-                <Link href="/" className="block md:hidden text-xl font-bold text-gray-900 dark:text-white">
-                  News5
+                <Link href="/" className="block md:hidden">
+                  <Image 
+                    src="/tnf-logo.png" 
+                    alt="TNF Logo" 
+                    width={90} 
+                    height={30}
+                    className="h-6 w-auto dark:invert"
+                  />
                 </Link>
               </div>
 
               <div className="hidden md:block">
-                <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
-                  News5
+                <Link href="/">
+                  <Image 
+                    src="/tnf-logo.png" 
+                    alt="TNF Logo" 
+                    width={110} 
+                    height={35}
+                    className="h-8 w-auto dark:invert"
+                  />
                 </Link>
               </div>
 

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Mail } from 'lucide-react'
 import { categories } from '@/lib/data'
 
@@ -9,7 +10,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* About */}
           <div>
-            <h3 className="text-xl font-bold mb-4">News5</h3>
+            <Link href="/" className="block mb-4">
+              <Image 
+                src="/tnf-logo.png" 
+                alt="TNF Logo" 
+                width={100} 
+                height={35}
+                className="h-7 w-auto dark:invert"
+              />
+            </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
               A modern news and magazine website bringing you the latest updates from around the world.
             </p>
@@ -86,7 +95,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <p>News5 © {new Date().getFullYear()}, All rights reserved.</p>
+            <p>TNF © {new Date().getFullYear()}, All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="/privacy" className="hover:text-red-600 dark:hover:text-red-500 transition-colors">
                 Privacy notice

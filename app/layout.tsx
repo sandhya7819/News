@@ -10,8 +10,23 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'News5 - Modern News Website',
+  title: 'TNF - Modern News Website',
   description: 'A modern news and magazine website built with Next.js',
+  icons: {
+    icon: [
+      { url: '/tnf-icon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/tnf-icon.png', sizes: '16x16', type: 'image/png' },
+    ],
+    shortcut: '/tnf-icon.png',
+    apple: [
+      { url: '/tnf-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  manifest: '/manifest.json',
+}
+
+export const viewport = {
+  themeColor: '#dc2626',
 }
 
 export default function RootLayout({

@@ -27,7 +27,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: 'How do I contact support?',
-    answer: 'You can contact our support team through the contact form on our website or by sending an email to support@news5.com.',
+    answer: 'You can contact our support team through the contact form on our website or by sending an email to support@tnf.com.',
   },
   {
     question: 'Is my payment information secure?',
