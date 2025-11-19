@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 0 72.2% 50.6%; /* red-600 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 0 72.2% 50.6%; /* red-600 */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 0%; /* Pure black background */
+    --foreground: 0 0% 100%; /* White text */
+    --card: 0 0% 9%; /* Very dark gray for cards */
+    --card-foreground: 0 0% 100%; /* White text on cards */
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 100%; /* White text */
+    --primary: 0 72.2% 50.6%; /* red-600 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%; /* Dark gray for secondary */
+    --secondary-foreground: 0 0% 100%; /* White text */
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 100%; /* White text */
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 100%; /* White text */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%; /* Dark gray borders */
+    --input: 0 0% 15%;
+    --ring: 0 72.2% 50.6%; /* red-600 */
+  }
+}
+
+@layer base {
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* Dark mode: All text white by default, red on hover */
+  .dark a:not([class*="text-"]) {
+    color: hsl(var(--foreground)) !important; /* White */
+  }
+
+  .dark a:hover:not([class*="text-"]) {
+    color: hsl(var(--primary)) !important; /* Red on hover */
+  }
+
+  /* Light mode: Links use red */
+  a:not([class*="text-"]):not(.dark *) {
+    color: hsl(var(--primary)) !important;
+  }
+
+  a:hover:not([class*="text-"]) {
+    color: hsl(var(--primary)) !important;
+    opacity: 0.8;
+  }
+
+  /* Override any blue link colors */
+  a:visited:not([class*="text-"]) {
+    color: hsl(var(--primary)) !important;
+  }
+
+  a:active:not([class*="text-"]) {
+    color: hsl(var(--primary)) !important;
+  }
+
+  /* Focus states should also be red */
+  a:focus {
+    outline-color: hsl(var(--primary));
+  }
+
+  /* Ensure hover:text-primary always uses red */
+  .hover\:text-primary:hover {
+    color: hsl(var(--primary)) !important;
+  }
+
+  /* Dark mode: White text normally, red on hover */
+  .dark .hover\:text-primary,
+  .dark button.hover\:text-primary,
+  .dark a.hover\:text-primary {
+    color: hsl(var(--foreground)) !important; /* White normally */
+  }
+
+  .dark .hover\:text-primary:hover,
+  .dark button.hover\:text-primary:hover,
+  .dark a.hover\:text-primary:hover {
+    color: hsl(var(--primary)) !important; /* Red on hover */
+  }
+
+  /* Dark mode: All buttons and links white by default */
+  .dark button:not([class*="text-"]),
+  .dark a:not([class*="text-"]) {
+    color: hsl(var(--foreground)) !important; /* White */
+  }
+
+  .dark button:hover:not([class*="text-"]),
+  .dark a:hover:not([class*="text-"]) {
+    color: hsl(var(--primary)) !important; /* Red on hover */
+  }
+
+  /* Override any default link colors to ensure red */
+  a[class*="hover:text-primary"]:hover {
+    color: #dc2626 !important; /* red-600 */
+  }
+
+  /* Ensure all primary color utilities use red */
+  .text-primary {
+    color: #dc2626 !important; /* red-600 */
+  }
+
+  .bg-primary {
+    background-color: #dc2626 !important; /* red-600 */
+  }
+
+  .border-primary {
+    border-color: #dc2626 !important; /* red-600 */
+  }
+
+  .ring-primary {
+    --tw-ring-color: #dc2626 !important; /* red-600 */
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Professional shadows */
+  .shadow-professional {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .shadow-professional-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .shadow-professional {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .shadow-professional-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Professional card hover effect */
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Professional button styles */
+  .btn-primary {
+    @apply px-6 py-3 bg-primary text-white rounded-lg font-semibold;
+    @apply hover:bg-primary-dark transition-all duration-200;
+    @apply shadow-lg hover:shadow-xl;
+    @apply transform hover:scale-105 active:scale-100;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg font-semibold;
+    @apply hover:bg-gray-300 dark:hover:bg-gray-700 transition-all duration-200;
+    @apply shadow-md hover:shadow-lg;
+    @apply transform hover:scale-105 active:scale-100;
+  }
+
+  /* Professional image overlay */
+  .image-overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+  }
+
+  /* Smooth image zoom */
+  .image-zoom {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .image-zoom:hover {
+    transform: scale(1.05);
+  }
+
+  /* Professional text gradient */
+  .text-gradient {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Auto-scrolling animation for top news banner */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Primary color override for red navbar */
+.bg-primary-600 {
+  background-color: #dc2626; /* red-600 */
+}
+
