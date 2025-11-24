@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Clock, Eye, MessageCircle } from 'lucide-react'
 import { Article } from '@/types'
 import { formatTimeAgo } from '@/lib/data'
+import { getArticleUrl } from '@/lib/utils'
 
 interface FeaturedArticlesProps {
   articles: Article[]
@@ -10,7 +11,17 @@ interface FeaturedArticlesProps {
 
 export default function FeaturedArticles({ articles }: FeaturedArticlesProps) {
   const mainArticle = articles[0]
-  const sideArticles = articles.slice(1, 5)
+  let sideArticles = articles.slice(1, 5)
+  
+  // If we don't have enough side articles, duplicate existing ones to fill
+  if (sideArticles.length < 4 && articles.length > 1) {
+    const needed = 4 - sideArticles.length
+    const additional = []
+    for (let i = 0; i < needed; i++) {
+      additional.push(articles[(i % (articles.length - 1)) + 1])
+    }
+    sideArticles = [...sideArticles, ...additional].slice(0, 4)
+  }
 
   return (
     <section className="py-6 bg-white dark:bg-black border-b border-gray-200 dark:border-gray-700">
@@ -19,7 +30,7 @@ export default function FeaturedArticles({ articles }: FeaturedArticlesProps) {
           {/* Main Featured Article */}
           {mainArticle && (
             <div className="lg:col-span-2">
-              <Link href={`/article/${mainArticle.id}`} className="group block">
+              <Link href={getArticleUrl(mainArticle)} className="group block">
                 <div className="relative h-[500px] md:h-[600px] rounded-xl overflow-hidden shadow-professional-lg group-hover:shadow-professional-lg transition-all duration-300">
                   <Image
                     src={mainArticle.image}
@@ -69,7 +80,7 @@ export default function FeaturedArticles({ articles }: FeaturedArticlesProps) {
           {/* Side Articles */}
           <div className="lg:col-span-1 space-y-5">
             {sideArticles.map((article) => (
-              <Link key={article.id} href={`/article/${article.id}`} className="group block">
+              <Link key={article.id} href={getArticleUrl(article)} className="group block">
                 <div className="flex gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors duration-200">
                   <div className="relative w-28 h-28 flex-shrink-0 rounded-xl overflow-hidden shadow-professional group-hover:shadow-professional-lg transition-shadow duration-300">
                     <Image

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Article } from '@/types'
 import { formatTimeAgo } from '@/lib/data'
+import { getArticleUrl } from '@/lib/utils'
 
 interface TrendingSectionProps {
   articles: Article[]
@@ -31,7 +32,7 @@ export default function TrendingSection({ articles }: TrendingSectionProps) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {articles.map((article) => (
-            <Link key={article.id} href={`/article/${article.id}`} className="group">
+            <Link key={article.id} href={getArticleUrl(article)} className="group">
               <div className="flex gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-200 card-hover">
                 <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden shadow-professional group-hover:shadow-professional-lg transition-shadow duration-300">
                   <Image

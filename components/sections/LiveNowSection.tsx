@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Clock, Eye, Play } from 'lucide-react'
 import { Article } from '@/types'
 import { formatTimeAgo } from '@/lib/data'
+import { getArticleUrl } from '@/lib/utils'
 
 interface LiveNowSectionProps {
   articles: Article[]
@@ -15,7 +16,7 @@ export default function LiveNowSection({ articles }: LiveNowSectionProps) {
         <h2 className="text-3xl font-bold mb-8 dark:text-white">Live now</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {articles.map((article) => (
-            <Link key={article.id} href={`/article/${article.id}`} className="group">
+            <Link key={article.id} href={getArticleUrl(article)} className="group">
               <div className="relative h-72 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-900 shadow-professional-lg group-hover:shadow-professional-lg transition-all duration-300 card-hover">
                 <Image
                   src={article.image}

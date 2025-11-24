@@ -10,13 +10,22 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* About */}
           <div>
-            <Link href="/" className="block mb-4">
+            <Link href="/" className="block mb-4 relative">
               <Image 
                 src="/tnf-logo.png" 
                 alt="TNF Logo" 
-                width={120} 
-                height={40}
+                width={280} 
+                height={55}
                 unoptimized
+                className="dark:hidden"
+              />
+              <Image 
+                src="/tnf-logo-dark.png" 
+                alt="TNF Logo" 
+                width={280} 
+                height={55}
+                unoptimized
+                className="hidden dark:block"
               />
             </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm">

@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Clock, Eye, MessageCircle } from 'lucide-react'
 import { Article } from '@/types'
 import { formatTimeAgo } from '@/lib/data'
+import { getArticleUrl } from '@/lib/utils'
 
 interface LatestWithSidebarProps {
   articles: Article[]
@@ -44,7 +45,7 @@ export default function LatestWithSidebar({ articles }: LatestWithSidebarProps) 
 
             <div className="space-y-6">
               {mainArticles.map((article) => (
-                <Link key={article.id} href={`/article/${article.id}`} className="group block">
+                <Link key={article.id} href={getArticleUrl(article)} className="group block">
                   <article className="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-professional hover:shadow-professional-lg border border-gray-100 dark:border-gray-800 card-hover">
                     <div className="flex flex-col md:flex-row gap-5 p-5 md:p-6">
                       <div className="relative w-full md:w-72 h-52 md:h-40 flex-shrink-0 rounded-xl overflow-hidden shadow-professional group-hover:shadow-professional-lg transition-shadow duration-300">

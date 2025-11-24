@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Clock, Eye, MessageCircle } from 'lucide-react'
 import { Article } from '@/types'
 import { formatTimeAgo } from '@/lib/data'
+import { getArticleUrl } from '@/lib/utils'
 
 interface ArticleCardProps {
   article: Article
@@ -14,7 +15,7 @@ export default function ArticleCard({ article, variant = 'default' }: ArticleCar
   const isSmall = variant === 'small'
 
   return (
-    <Link href={`/article/${article.id}`} className="group">
+    <Link href={getArticleUrl(article)} className="group">
       <article className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 ${isLarge ? 'md:col-span-2' : ''}`}>
         <div className={`relative ${isLarge ? 'h-80' : isSmall ? 'h-40' : 'h-48'} overflow-hidden`}>
           <Image

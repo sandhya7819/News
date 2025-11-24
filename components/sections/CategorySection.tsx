@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Clock, Eye, MessageCircle } from 'lucide-react'
 import { Article } from '@/types'
 import { formatTimeAgo } from '@/lib/data'
+import { getArticleUrl } from '@/lib/utils'
 
 interface CategorySectionProps {
   title: string
@@ -12,7 +13,7 @@ interface CategorySectionProps {
 
 export default function CategorySection({ title, articles, categorySlug }: CategorySectionProps) {
   const featuredArticle = articles[0]
-  const otherArticles = articles.slice(1, 4)
+  const otherArticles = articles.slice(1, 5)
 
   return (
     <section className="py-12 bg-white dark:bg-black">
@@ -22,7 +23,7 @@ export default function CategorySection({ title, articles, categorySlug }: Categ
           {/* Featured Article */}
           {featuredArticle && (
             <div className="lg:col-span-2">
-              <Link href={`/article/${featuredArticle.id}`} className="group block">
+              <Link href={getArticleUrl(featuredArticle)} className="group block">
                 <div className="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-professional hover:shadow-professional-lg border border-gray-100 dark:border-gray-800 card-hover">
                   <div className="relative h-80 overflow-hidden">
                     <Image
@@ -68,28 +69,28 @@ export default function CategorySection({ title, articles, categorySlug }: Categ
           )}
 
           {/* Other Articles */}
-          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr">
             {otherArticles.map((article) => (
-              <Link key={article.id} href={`/article/${article.id}`} className="group block">
+              <Link key={article.id} href={getArticleUrl(article)} className="group block">
                 <div className="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-professional hover:shadow-professional-lg border border-gray-100 dark:border-gray-800 card-hover">
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-36 overflow-hidden">
                     <Image
                       src={article.image}
                       alt={article.title}
                       fill
                       className="object-cover image-zoom"
                     />
-                    <div className="absolute top-4 left-4">
-                      <span className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2.5 py-1 bg-primary text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
                         {article.category}
                       </span>
                     </div>
                   </div>
-                  <div className="p-5">
-                    <h3 className="text-lg font-extrabold mb-3 group-hover:text-primary transition-colors duration-200 line-clamp-2 dark:text-white leading-tight">
+                  <div className="p-4">
+                    <h3 className="text-base font-extrabold mb-2 group-hover:text-primary transition-colors duration-200 line-clamp-2 dark:text-white leading-tight">
                       {article.title}
                     </h3>
-                    <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                       <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         <span>{formatTimeAgo(article.publishedAt)}</span>

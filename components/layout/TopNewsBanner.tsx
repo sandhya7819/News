@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Article } from '@/types'
-import { formatTimeAgo } from '@/lib/data'
+import { getArticleUrl } from '@/lib/utils'
 
 interface TopNewsBannerProps {
   articles: Article[]
@@ -12,6 +12,10 @@ export default function TopNewsBanner({ articles }: TopNewsBannerProps) {
   const topArticles = articles.slice(0, 5)
   // Duplicate articles for seamless loop
   const duplicatedArticles = [...topArticles, ...topArticles]
+
+  if (topArticles.length === 0) {
+    return null
+  }
 
   return (
     <div className="bg-red-600 text-white py-2 overflow-hidden relative">
@@ -23,7 +27,7 @@ export default function TopNewsBanner({ articles }: TopNewsBannerProps) {
               {duplicatedArticles.map((article, index) => (
                 <div key={`${article.id}-${index}`} className="flex items-center gap-3 flex-shrink-0">
                   <Link 
-                    href={`/article/${article.id}`}
+                    href={getArticleUrl(article)}
                     className="text-xs hover:underline whitespace-nowrap"
                   >
                     {article.title}

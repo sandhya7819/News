@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X, Search, ShoppingCart, Bookmark, User, Moon, Sun, ChevronDown, MoreHorizontal, Dot } from 'lucide-react'
@@ -10,8 +10,22 @@ import MenuPanel from '@/components/modals/MenuPanel'
 import CartPanel from '@/components/modals/CartPanel'
 import FavoritesModal from '@/components/modals/FavoritesModal'
 import AccountModal from '@/components/modals/AccountModal'
-import { articles } from '@/lib/data'
-import { formatTimeAgo } from '@/lib/data'
+import { Article } from '@/types'
+import { getArticleUrl } from '@/lib/utils'
+
+// Format time ago helper
+function formatTimeAgo(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  
+  if (diffInSeconds < 60) return 'Just now'
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`
+  
+  return date.toLocaleDateString()
+}
 
 export default function Header() {
   const [menuPanelOpen, setMenuPanelOpen] = useState(false)
@@ -28,11 +42,56 @@ export default function Header() {
   const [overflowOpen, setOverflowOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
 
-  const allCategories = [
-    'Politics', 'Opinions', 'World', 'Media', 'Tech', 'Business', 
-    'Fashion', 'Arts', 'Food', 'Economy', 'Finance', 'Education', 
-    'Health', 'National', 'E-Books', 'Press', 'Podcasts', 'Entertainments', 'Weather'
-  ]
+  // WordPress data state
+  const [allArticles, setAllArticles] = useState<Article[]>([])
+  const [allCategories, setAllCategories] = useState<{ id: string; name: string; slug: string }[]>([])
+  const [latestArticles, setLatestArticles] = useState<Article[]>([])
+  const [topNewsArticles, setTopNewsArticles] = useState<Article[]>([])
+
+  // Fetch WordPress data
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Fetch posts
+        const postsResponse = await fetch('/api/posts?per_page=50')
+        const posts = await postsResponse.json()
+        // Handle both { articles } and direct array response
+        const articlesArray = Array.isArray(posts) ? posts : (posts.articles || [])
+        setAllArticles(articlesArray)
+
+        // Sort by date for latest
+        const sortedByDate = [...(posts || [])].sort((a, b) => 
+          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+        )
+        setLatestArticles(sortedByDate.slice(0, 10))
+        setTopNewsArticles(sortedByDate.slice(0, 6))
+
+        // Fetch categories
+        const categoriesResponse = await fetch('/api/categories')
+        const categories = await categoriesResponse.json()
+        setAllCategories(categories || [])
+      } catch (error) {
+        console.error('Error fetching header data:', error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Filter articles by category
+  const getArticlesByCategory = (categoryName: string, limit: number = 5): Article[] => {
+    return allArticles
+      .filter(article => article.category.toLowerCase() === categoryName.toLowerCase())
+      .slice(0, limit)
+  }
+
+  // Get category slug by name
+  const getCategorySlug = (categoryName: string): string => {
+    const category = allCategories.find(cat => 
+      cat.name.toLowerCase() === categoryName.toLowerCase()
+    )
+    return category?.slug || categoryName.toLowerCase()
+  }
 
   return (
     <>
@@ -42,17 +101,18 @@ export default function Header() {
           <div className="container max-w-7xl mx-auto px-4">
             <div className="flex items-center gap-8 overflow-hidden">
               <div className="flex items-center gap-8 animate-scroll whitespace-nowrap">
-                <Link href="/blog/1" className="text-xs text-white hover:underline">The Importance of Sleep: Tips for Better Rest and Recovery</Link>
-                <span className="text-white/70">·</span>
-                <Link href="/blog/2" className="text-xs text-white hover:underline">The Future of Sustainable Living: Driving Eco-Friendly Lifestyles</Link>
-                <span className="text-white/70">·</span>
-                <Link href="/blog/3" className="text-xs text-white hover:underline">Business Agility the Digital Age: Leveraging AI and Automation</Link>
-                <span className="text-white/70">·</span>
-                <Link href="/blog/4" className="text-xs text-white hover:underline">The Rise of AI-Powered Personal Assistants: How They Manage</Link>
-                <span className="text-white/70">·</span>
-                <Link href="/blog/5" className="text-xs text-white hover:underline">Tech Innovations Reshaping the Retail Landscape: AI Payments</Link>
-                <span className="text-white/70">·</span>
-                <Link href="/blog/6" className="text-xs text-white hover:underline">Balancing Work and Wellness: Tech Solutions for Healthy</Link>
+                {topNewsArticles.length > 0 ? (
+                  topNewsArticles.map((article, index) => (
+                    <span key={article.id} className="flex items-center gap-2">
+                      <Link href={getArticleUrl(article)} className="text-xs text-white hover:underline">
+                        {article.title}
+                      </Link>
+                      {index < topNewsArticles.length - 1 && <span className="text-white/70">·</span>}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-white">Loading latest news...</span>
+                )}
               </div>
             </div>
           </div>
@@ -77,15 +137,19 @@ export default function Header() {
                     onMouseLeave={() => setCategoriesOpen(false)}
                   >
                     <div className="grid grid-cols-2 gap-4">
-                      {allCategories.map((cat) => (
-                        <Link
-                          key={cat}
-                          href={`/category/${cat.toLowerCase()}`}
-                          className="text-sm hover:text-primary transition-colors dark:text-white py-1"
-                        >
-                          {cat}
-                        </Link>
-                      ))}
+                      {allCategories.length > 0 ? (
+                        allCategories.map((cat) => (
+                          <Link
+                            key={cat.id}
+                            href={`/category/${cat.slug}`}
+                            className="text-sm hover:text-primary transition-colors dark:text-white py-1"
+                          >
+                            {cat.name}
+                          </Link>
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Loading categories...</span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -114,21 +178,25 @@ export default function Header() {
                       <Link href="/latest?filter=media" className="text-gray-600 dark:text-white hover:text-primary">Media</Link>
                     </div>
                     <div className="space-y-3">
-                      {articles.slice(0, 5).map((article) => (
-                        <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
-                          <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
-                            <Image src={article.image} alt={article.title} fill className="object-cover" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors dark:text-white">
-                              {article.title}
-                            </h4>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              {formatTimeAgo(article.publishedAt)} · {article.views}
+                      {latestArticles.length > 0 ? (
+                        latestArticles.slice(0, 5).map((article) => (
+                          <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
+                            <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+                              <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
-                          </div>
-                        </Link>
-                      ))}
+                            <div className="flex-1">
+                              <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors dark:text-white">
+                                {article.title}
+                              </h4>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {formatTimeAgo(article.publishedAt)} · {article.views} views
+                              </div>
+                            </div>
+                          </Link>
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Loading latest articles...</span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -149,9 +217,9 @@ export default function Header() {
                     onMouseLeave={() => setPoliticsOpen(false)}
                   >
                     <div className="space-y-3">
-                      {articles.filter(a => a.category === 'Politics').slice(0, 5).length > 0 ? (
-                        articles.filter(a => a.category === 'Politics').slice(0, 5).map((article) => (
-                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                      {getArticlesByCategory('Politics').length > 0 ? (
+                        getArticlesByCategory('Politics').map((article) => (
+                          <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
                             <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
                               <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
@@ -160,14 +228,14 @@ export default function Header() {
                                 {article.title}
                               </h4>
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                                {formatTimeAgo(article.publishedAt)} · {article.views} views
                               </div>
                             </div>
                           </Link>
                         ))
                       ) : (
-                        articles.slice(0, 5).map((article) => (
-                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                        latestArticles.slice(0, 5).map((article) => (
+                          <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
                             <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
                               <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
@@ -176,7 +244,7 @@ export default function Header() {
                                 {article.title}
                               </h4>
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                                {formatTimeAgo(article.publishedAt)} · {article.views} views
                               </div>
                             </div>
                           </Link>
@@ -202,9 +270,9 @@ export default function Header() {
                     onMouseLeave={() => setOpinionsOpen(false)}
                   >
                     <div className="space-y-3">
-                      {articles.filter(a => a.category === 'Opinions').slice(0, 5).length > 0 ? (
-                        articles.filter(a => a.category === 'Opinions').slice(0, 5).map((article) => (
-                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                      {getArticlesByCategory('Opinions').length > 0 ? (
+                        getArticlesByCategory('Opinions').map((article) => (
+                          <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
                             <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
                               <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
@@ -213,14 +281,14 @@ export default function Header() {
                                 {article.title}
                               </h4>
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                                {formatTimeAgo(article.publishedAt)} · {article.views} views
                               </div>
                             </div>
                           </Link>
                         ))
                       ) : (
-                        articles.slice(0, 5).map((article) => (
-                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                        latestArticles.slice(0, 5).map((article) => (
+                          <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
                             <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
                               <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
@@ -229,7 +297,7 @@ export default function Header() {
                                 {article.title}
                               </h4>
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                                {formatTimeAgo(article.publishedAt)} · {article.views} views
                               </div>
                             </div>
                           </Link>
@@ -255,25 +323,27 @@ export default function Header() {
                     onMouseLeave={() => setWorldOpen(false)}
                   >
                     <div className="space-y-3">
-                      {articles.filter(a => a.category === 'World' || a.category === 'Arts').slice(0, 5).length > 0 ? (
-                        articles.filter(a => a.category === 'World' || a.category === 'Arts').slice(0, 5).map((article) => (
-                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
-                            <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
-                              <Image src={article.image} alt={article.title} fill className="object-cover" />
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors dark:text-white">
-                                {article.title}
-                              </h4>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                      {getArticlesByCategory('World').length > 0 || getArticlesByCategory('Arts').length > 0 ? (
+                        [...getArticlesByCategory('World'), ...getArticlesByCategory('Arts')]
+                          .slice(0, 5)
+                          .map((article) => (
+                            <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
+                              <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+                                <Image src={article.image} alt={article.title} fill className="object-cover" />
                               </div>
-                            </div>
-                          </Link>
-                        ))
+                              <div className="flex-1">
+                                <h4 className="text-sm font-bold line-clamp-2 group-hover:text-primary transition-colors dark:text-white">
+                                  {article.title}
+                                </h4>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {formatTimeAgo(article.publishedAt)} · {article.views} views
+                                </div>
+                              </div>
+                            </Link>
+                          ))
                       ) : (
-                        articles.slice(0, 5).map((article) => (
-                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                        latestArticles.slice(0, 5).map((article) => (
+                          <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
                             <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
                               <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
@@ -282,7 +352,7 @@ export default function Header() {
                                 {article.title}
                               </h4>
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                                {formatTimeAgo(article.publishedAt)} · {article.views} views
                               </div>
                             </div>
                           </Link>
@@ -308,9 +378,9 @@ export default function Header() {
                     onMouseLeave={() => setMediaOpen(false)}
                   >
                     <div className="space-y-3">
-                      {articles.filter(a => a.category === 'Media').slice(0, 5).length > 0 ? (
-                        articles.filter(a => a.category === 'Media').slice(0, 5).map((article) => (
-                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                      {getArticlesByCategory('Media').length > 0 ? (
+                        getArticlesByCategory('Media').map((article) => (
+                          <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
                             <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
                               <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
@@ -319,14 +389,14 @@ export default function Header() {
                                 {article.title}
                               </h4>
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                                {formatTimeAgo(article.publishedAt)} · {article.views} views
                               </div>
                             </div>
                           </Link>
                         ))
                       ) : (
-                        articles.slice(0, 5).map((article) => (
-                          <Link key={article.id} href={`/article/${article.id}`} className="flex gap-3 group">
+                        latestArticles.slice(0, 5).map((article) => (
+                          <Link key={article.id} href={getArticleUrl(article)} className="flex gap-3 group">
                             <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
                               <Image src={article.image} alt={article.title} fill className="object-cover" />
                             </div>
@@ -335,7 +405,7 @@ export default function Header() {
                                 {article.title}
                               </h4>
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {formatTimeAgo(article.publishedAt)} · {article.views}
+                                {formatTimeAgo(article.publishedAt)} · {article.views} views
                               </div>
                             </div>
                           </Link>
@@ -346,12 +416,17 @@ export default function Header() {
                 )}
               </div>
 
-              <Link href="/category/tech" className="dark:text-white hover:text-primary transition-colors">Tech</Link>
-              <Link href="/category/business" className="dark:text-white hover:text-primary transition-colors">Business</Link>
-              <Link href="/category/fashion" className="dark:text-white hover:text-primary transition-colors">Fashion</Link>
-              <Link href="/category/arts" className="dark:text-white hover:text-primary transition-colors">Arts & Entertainments</Link>
-              <Link href="/category/food" className="dark:text-white hover:text-primary transition-colors">Food</Link>
-              <Link href="/category/e-books" className="dark:text-white hover:text-primary transition-colors">E-Books</Link>
+              {allCategories.filter(cat => 
+                ['tech', 'business', 'fashion', 'arts', 'food', 'e-books'].includes(cat.slug.toLowerCase())
+              ).slice(0, 6).map((cat) => (
+                <Link 
+                  key={cat.id} 
+                  href={`/category/${cat.slug}`} 
+                  className="dark:text-white hover:text-primary transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              ))}
               
               <div className="relative">
                 <button
@@ -368,15 +443,19 @@ export default function Header() {
                     onMouseLeave={() => setOverflowOpen(false)}
                   >
                     <div className="space-y-2">
-                      {['Economy', 'Finance', 'Education', 'Health', 'National', 'Press', 'Podcasts', 'Entertainments', 'Weather'].map((cat) => (
-                        <Link
-                          key={cat}
-                          href={`/category/${cat.toLowerCase()}`}
-                          className="block text-sm hover:text-primary transition-colors dark:text-white py-1"
-                        >
-                          {cat}
-                        </Link>
-                      ))}
+                      {allCategories.length > 0 ? (
+                        allCategories.slice(6).map((cat) => (
+                          <Link
+                            key={cat.id}
+                            href={`/category/${cat.slug}`}
+                            className="block text-sm hover:text-primary transition-colors dark:text-white py-1"
+                          >
+                            {cat.name}
+                          </Link>
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Loading...</span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -404,27 +483,47 @@ export default function Header() {
                   <Dot className="w-3 h-3 text-red-500 animate-pulse" />
                   <span>Live</span>
                 </Link>
-                <Link href="/" className="block md:hidden">
+                <Link href="/" className="block md:hidden relative">
                   <Image 
                     src="/tnf-logo.png" 
                     alt="TNF Logo" 
-                    width={120} 
-                    height={40}
+                    width={280} 
+                    height={55}
                     unoptimized
                     priority
+                    className="dark:hidden"
+                  />
+                  <Image 
+                    src="/tnf-logo-dark.png" 
+                    alt="TNF Logo" 
+                    width={280} 
+                    height={55}
+                    unoptimized
+                    priority
+                    className="hidden dark:block"
                   />
                 </Link>
               </div>
 
-              <div className="hidden md:block">
+              <div className="hidden md:block relative">
                 <Link href="/">
                   <Image 
                     src="/tnf-logo.png" 
                     alt="TNF Logo" 
-                    width={150} 
-                    height={50}
+                    width={280} 
+                    height={55}
                     unoptimized
                     priority
+                    className="dark:hidden"
+                  />
+                  <Image 
+                    src="/tnf-logo-dark.png" 
+                    alt="TNF Logo" 
+                    width={280} 
+                    height={55}
+                    unoptimized
+                    priority
+                    className="hidden dark:block"
                   />
                 </Link>
               </div>

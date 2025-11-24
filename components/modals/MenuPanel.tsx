@@ -31,13 +31,22 @@ export default function MenuPanel({ isOpen, onClose }: MenuPanelProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex justify-between items-center pb-4 bg-white dark:bg-black sticky top-0 z-10 p-4 border-b border-gray-200 dark:border-gray-800">
-          <Link href="/">
+          <Link href="/" className="relative">
             <Image 
               src="/tnf-logo.png" 
               alt="TNF Logo" 
-              width={100} 
-              height={35}
+              width={280} 
+              height={55}
               unoptimized
+              className="dark:hidden"
+            />
+            <Image 
+              src="/tnf-logo-dark.png" 
+              alt="TNF Logo" 
+              width={280} 
+              height={55}
+              unoptimized
+              className="hidden dark:block"
             />
           </Link>
           <button

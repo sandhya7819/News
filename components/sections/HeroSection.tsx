@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Clock, Eye, MessageCircle } from 'lucide-react'
 import { Article } from '@/types'
 import { formatTimeAgo } from '@/lib/data'
+import { getArticleUrl } from '@/lib/utils'
 
 interface HeroSectionProps {
   featuredArticle: Article
@@ -55,7 +56,7 @@ export default function HeroSection({ featuredArticle }: HeroSectionProps) {
             </div>
           </div>
           <Link
-            href={`/article/${featuredArticle.id}`}
+            href={getArticleUrl(featuredArticle)}
             className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-semibold"
           >
             Read more

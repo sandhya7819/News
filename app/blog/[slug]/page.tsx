@@ -2,25 +2,45 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Clock, Eye, MessageCircle, Share2, Bookmark } from 'lucide-react'
-import { fetchWordPressPostById, fetchWordPressPostBySlug, fetchWordPressPosts, fetchWordPressCategories } from '@/lib/wordpress'
+import { fetchWordPressPostBySlug, fetchWordPressPosts, fetchWordPressCategories } from '@/lib/wordpress'
 import { formatTimeAgo } from '@/lib/data'
 import ArticleCard from '@/components/articles/ArticleCard'
 import { Metadata } from 'next'
 
-// ISR: Static page regenerated every hour, or immediately via webhook
-// Note: This page redirects to slug-based URL, so static generation is less critical
+// ISR Configuration: Pages will be statically generated and revalidated every hour
+// When new blog is added in WordPress, webhook will trigger immediate revalidation
 export const revalidate = 3600 // Revalidate every hour (3600 seconds)
 
-interface ArticleDetailPageProps {
-  params: { id: string }
+interface BlogPostPageProps {
+  params: { slug: string }
 }
 
-export async function generateMetadata({ params }: ArticleDetailPageProps): Promise<Metadata> {
-  const article = await fetchWordPressPostById(params.id)
+// Generate static params for all blog posts at build time
+// This pre-generates all blog post pages as static HTML
+export async function generateStaticParams() {
+  try {
+    // Fetch all published posts to generate static pages
+    const posts = await fetchWordPressPosts({ 
+      per_page: 100, // Adjust based on your total posts
+      revalidate: 3600 // Cache for 1 hour
+    })
+    
+    // Return array of slugs for static generation
+    return posts.map((post) => ({
+      slug: post.slug || post.id.toString(),
+    }))
+  } catch (error) {
+    console.error('Error generating static params:', error)
+    return []
+  }
+}
+
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const article = await fetchWordPressPostBySlug(params.slug)
   
   if (!article) {
     return {
-      title: 'Article Not Found',
+      title: 'Post Not Found',
     }
   }
   
@@ -39,33 +59,11 @@ export async function generateMetadata({ params }: ArticleDetailPageProps): Prom
   }
 }
 
-export default async function ArticleDetailPage({ params }: ArticleDetailPageProps) {
-  // Try fetching by ID first, then by slug if ID fails
-  let article = await fetchWordPressPostById(params.id)
-  
-  // If not found by ID, try as slug
-  if (!article) {
-    article = await fetchWordPressPostBySlug(params.id)
-  }
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const article = await fetchWordPressPostBySlug(params.slug)
 
   if (!article) {
     notFound()
-  }
-
-  // Redirect to slug-based URL if article has slug
-  if (article.slug && article.slug !== params.id) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-gray-600 dark:text-gray-400">Redirecting...</p>
-            <script dangerouslySetInnerHTML={{
-              __html: `window.location.href = '/blog/${article.slug}'`
-            }} />
-          </div>
-        </div>
-      </div>
-    )
   }
 
   // Get WordPress categories for breadcrumb
@@ -83,12 +81,12 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
     ? await fetchWordPressPosts({ 
         per_page: 4, 
         categories: [parseInt(wpCategory.id)],
-        revalidate: 3600
+        revalidate: 3600 // Cache for 1 hour
       })
     : await fetchWordPressPosts({ per_page: 4, revalidate: 3600 })
   
   const filteredRelated = relatedArticles
-    .filter(a => a.id !== article.id && (a.category === article.category || a.tags?.some(tag => article.tags?.includes(tag))))
+    .filter(a => a.id !== article.id)
     .slice(0, 3)
 
   return (
@@ -191,7 +189,11 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
               <h2 className="text-3xl font-bold mb-8">Related Articles</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {filteredRelated.map((relatedArticle) => (
-                  <ArticleCard key={relatedArticle.id} article={relatedArticle} variant="small" />
+                  <ArticleCard 
+                    key={relatedArticle.id} 
+                    article={relatedArticle} 
+                    variant="small"
+                  />
                 ))}
               </div>
             </div>
